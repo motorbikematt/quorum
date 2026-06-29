@@ -1,0 +1,509 @@
+
+> quorum@0.0.0 test
+> vitest run src/test/kiosk.test.tsx
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90mD:/vibe/quorum[39m
+
+stderr | src/test/kiosk.test.tsx > Kiosk ΓÇö QR scan flow (happy path) > transitions to VERIFYING after scanning a valid QR payload
+Each child in a list should have a unique "key" prop.
+
+Check the render method of `div`. It was passed a child from Numpad. See https://react.dev/link/warning-keys for more information.
+
+ [31mΓ¥»[39m src/test/kiosk.test.tsx [2m([22m[2m45 tests[22m[2m | [22m[31m34 failed[39m[2m)[22m[33m 171680[2mms[22m[39m
+     [32mΓ£ô[39m renders "Tap to Scan QR Pass" button on mount[32m 108[2mms[22m[39m
+     [32mΓ£ô[39m renders "No QR Code? Search by Name" button on mount[32m 9[2mms[22m[39m
+     [32mΓ£ô[39m shows the live quorum counter in the header[32m 5[2mms[22m[39m
+     [32mΓ£ô[39m quorum counter starts at 0 with all-pending registry[32m 3[2mms[22m[39m
+     [32mΓ£ô[39m transitions to VERIFYING after scanning a valid QR payload[32m 64[2mms[22m[39m
+     [32mΓ£ô[39m displays the captain first name and last name in the VERIFYING screen[32m 60[2mms[22m[39m
+     [32mΓ£ô[39m displays the captain precinct in the VERIFYING screen[32m 63[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m transitions to SUCCESS after entering the correct phoneLast4 PIN [33m 355[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m increments the quorum counter by 1 after successful verification [33m 356[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m writes syncStatus 1 to localStorage after successful verification [33m 361[2mms[22m[39m
+[31m     [31m├ù[31m resets to IDLE after the 3-second SUCCESS timeout[39m[33m 5007[2mms[22m[39m
+[31m     [31m├ù[31m displays collection copy if phoneLast4 is null[39m[33m 5012[2mms[22m[39m
+[31m     [31m├ù[31m accepts the first 4-digit PIN as the new phoneLast4 and transitions to SUCCESS[39m[33m 5005[2mms[22m[39m
+[31m     [31m├ù[31m saves the collected phoneLast4 and syncStatus 1 to localStorage[39m[33m 5007[2mms[22m[39m
+[31m     [31m├ù[31m rejects a QR payload whose exp is in the past and stays on IDLE[39m[33m 5004[2mms[22m[39m
+[31m     [31m├ù[31m accepts a QR payload whose exp is in the future[39m[33m 5002[2mms[22m[39m
+[31m     [31m├ù[31m accepts a QR payload with no exp field (backwards compatibility)[39m[33m 5011[2mms[22m[39m
+[31m     [31m├ù[31m blocks a captain with syncStatus 1 from scanning again[39m[33m 5014[2mms[22m[39m
+[31m     [31m├ù[31m blocks a captain with syncStatus 2 from scanning again[39m[33m 5004[2mms[22m[39m
+[31m     [31m├ù[31m allows a captain with syncStatus 3 (Locked) to be re-scanned by staff[39m[33m 5009[2mms[22m[39m
+[31m     [31m├ù[31m stays in VERIFYING after one wrong PIN attempt[39m[33m 5001[2mms[22m[39m
+[31m     [31m├ù[31m clears the PIN display after a wrong attempt[39m[33m 5009[2mms[22m[39m
+[31m     [31m├ù[31m locks (LOCKED step) after exactly two wrong PIN attempts[39m[33m 5001[2mms[22m[39m
+[31m     [31m├ù[31m writes syncStatus 3 to localStorage when the screen locks[39m[33m 5014[2mms[22m[39m
+[31m     [31m├ù[31m shows "Staff Assistance Required" text in the LOCKED step[39m[33m 5009[2mms[22m[39m
+[31m     [31m├ù[31m does NOT increment the quorum counter when the screen locks[39m[33m 5007[2mms[22m[39m
+     [32mΓ£ô[39m does not respond to taps in the hidden zone when not in LOCKED step[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m transitions to ADMIN_OVERRIDE after exactly 3 taps in the hidden zone[39m[33m 5013[2mms[22m[39m
+[31m     [31m├ù[31m does not transition to ADMIN_OVERRIDE after only 2 taps[39m[33m 5015[2mms[22m[39m
+[31m     [31m├ù[31m shows "Admin Mode" banner in ADMIN_OVERRIDE step[39m[33m 5010[2mms[22m[39m
+[31m     [31m├ù[31m transitions to SUCCESS after entering the correct admin PIN[39m[33m 5009[2mms[22m[39m
+[31m     [31m├ù[31m writes syncStatus 2 (Staff Override) after admin PIN accepted[39m[33m 5013[2mms[22m[39m
+[31m     [31m├ù[31m increments the quorum counter after admin PIN accepted[39m[33m 5012[2mms[22m[39m
+[31m     [31m├ù[31m stays in ADMIN_OVERRIDE and clears PIN after a wrong admin PIN[39m[33m 5003[2mms[22m[39m
+[31m     [31m├ù[31m resets to IDLE on Cancel Override button click[39m[33m 5011[2mms[22m[39m
+[31m     [31m├ù[31m transitions to MANUAL_SEARCH when "Search by Name" is clicked[39m[33m 5005[2mms[22m[39m
+[31m     [31m├ù[31m shows no results when fewer than 2 characters are typed[39m[33m 5013[2mms[22m[39m
+[31m     [31m├ù[31m shows matching captains after typing 2+ characters of last name[39m[33m 5004[2mms[22m[39m
+[31m     [31m├ù[31m only shows captains with syncStatus 0 (Pending) in search results[39m[33m 5010[2mms[22m[39m
+[31m     [31m├ù[31m does NOT show captains with syncStatus 1 in search results[39m[33m 5008[2mms[22m[39m
+[31m     [31m├ù[31m does NOT show captains with syncStatus 3 in search results[39m[33m 5008[2mms[22m[39m
+[31m     [31m├ù[31m transitions to VERIFYING after selecting a captain from the list[39m[33m 5010[2mms[22m[39m
+[31m     [31m├ù[31m shows the selected captain name and precinct in VERIFYING after manual select[39m[33m 5014[2mms[22m[39m
+[31m     [31m├ù[31m is case-insensitive ΓÇö "do" matches "Doe"[39m[33m 5003[2mms[22m[39m
+[31m     [31m├ù[31m resets to IDLE on Cancel button click[39m[33m 5012[2mms[22m[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 34 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö QR scan flow (happy path) > resets to IDLE after the 3-second SUCCESS timeout
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:152:3
+    150|   });
+    151|
+    152|   it('resets to IDLE after the 3-second SUCCESS timeout', async () => {
+       |   ^
+    153|     vi.useFakeTimers();
+    154|     renderWithRegistry(<Kiosk />, initialRegistry);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö null phone collection path > displays collection copy if phoneLast4 is null
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:175:3
+    173|
+    174| describe('Kiosk ΓÇö null phone collection path', () => {
+    175|   it('displays collection copy if phoneLast4 is null', async () => {
+       |   ^
+    176|     renderWithRegistry(<Kiosk />, initialRegistry);
+    177|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö null phone collection path > accepts the first 4-digit PIN as the new phoneLast4 and transitions to SUCCESS
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:182:3
+    180|   });
+    181|
+    182|   it('accepts the first 4-digit PIN as the new phoneLast4 and transitiΓÇª
+       |   ^
+    183|     vi.useFakeTimers();
+    184|     renderWithRegistry(<Kiosk />, initialRegistry);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö null phone collection path > saves the collected phoneLast4 and syncStatus 1 to localStorage
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:202:3
+    200|   });
+    201|
+    202|   it('saves the collected phoneLast4 and syncStatus 1 to localStorage'ΓÇª
+       |   ^
+    203|     vi.useFakeTimers();
+    204|     renderWithRegistry(<Kiosk />, initialRegistry);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö QR expiry check > rejects a QR payload whose exp is in the past and stays on IDLE
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:227:3
+    225|
+    226| describe('Kiosk ΓÇö QR expiry check', () => {
+    227|   it('rejects a QR payload whose exp is in the past and stays on IDLE'ΓÇª
+       |   ^
+    228|     renderWithRegistry(<Kiosk />, initialRegistry);
+    229|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö QR expiry check > accepts a QR payload whose exp is in the future
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:237:3
+    235|   });
+    236|
+    237|   it('accepts a QR payload whose exp is in the future', async () => {
+       |   ^
+    238|     renderWithRegistry(<Kiosk />, initialRegistry);
+    239|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö QR expiry check > accepts a QR payload with no exp field (backwards compatibility)
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:245:3
+    243|   });
+    244|
+    245|   it('accepts a QR payload with no exp field (backwards compatibility)ΓÇª
+       |   ^
+    246|     renderWithRegistry(<Kiosk />, initialRegistry);
+    247|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö duplicate scan guard > blocks a captain with syncStatus 1 from scanning again
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:256:3
+    254|
+    255| describe('Kiosk ΓÇö duplicate scan guard', () => {
+    256|   it('blocks a captain with syncStatus 1 from scanning again', async (ΓÇª
+       |   ^
+    257|     const reg = [{ ...initialRegistry[0], syncStatus: 1 }];
+    258|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[8/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö duplicate scan guard > blocks a captain with syncStatus 2 from scanning again
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:264:3
+    262|   });
+    263|
+    264|   it('blocks a captain with syncStatus 2 from scanning again', async (ΓÇª
+       |   ^
+    265|     const reg = [{ ...initialRegistry[0], syncStatus: 2 }];
+    266|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[9/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö duplicate scan guard > allows a captain with syncStatus 3 (Locked) to be re-scanned by staff
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:272:3
+    270|   });
+    271|
+    272|   it('allows a captain with syncStatus 3 (Locked) to be re-scanned by ΓÇª
+       |   ^
+    273|     const reg = [{ ...initialRegistry[0], syncStatus: 3 }];
+    274|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[10/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö PIN failure and lockout > stays in VERIFYING after one wrong PIN attempt
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:282:3
+    280|
+    281| describe('Kiosk ΓÇö PIN failure and lockout', () => {
+    282|   it('stays in VERIFYING after one wrong PIN attempt', async () => {
+       |   ^
+    283|     renderWithRegistry(<Kiosk />, initialRegistry);
+    284|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[11/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö PIN failure and lockout > clears the PIN display after a wrong attempt
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:295:3
+    293|   });
+    294|
+    295|   it('clears the PIN display after a wrong attempt', async () => {
+       |   ^
+    296|     renderWithRegistry(<Kiosk />, initialRegistry);
+    297|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[12/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö PIN failure and lockout > locks (LOCKED step) after exactly two wrong PIN attempts
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:308:3
+    306|   });
+    307|
+    308|   it('locks (LOCKED step) after exactly two wrong PIN attempts', asyncΓÇª
+       |   ^
+    309|     renderWithRegistry(<Kiosk />, initialRegistry);
+    310|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[13/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö PIN failure and lockout > writes syncStatus 3 to localStorage when the screen locks
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:329:3
+    327|   });
+    328|
+    329|   it('writes syncStatus 3 to localStorage when the screen locks', asynΓÇª
+       |   ^
+    330|     const reg = [{ ...initialRegistry[0] }];
+    331|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[14/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö PIN failure and lockout > shows "Staff Assistance Required" text in the LOCKED step
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:351:3
+    349|   });
+    350|
+    351|   it('shows "Staff Assistance Required" text in the LOCKED step', asynΓÇª
+       |   ^
+    352|     renderWithRegistry(<Kiosk />, initialRegistry);
+    353|     await userEvent.click(screen.getByRole('button', { name: /tap to sΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[15/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö PIN failure and lockout > does NOT increment the quorum counter when the screen locks
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:371:3
+    369|   });
+    370|
+    371|   it('does NOT increment the quorum counter when the screen locks', asΓÇª
+       |   ^
+    372|     const reg = [{ ...initialRegistry[0] }];
+    373|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[16/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > transitions to ADMIN_OVERRIDE after exactly 3 taps in the hidden zone
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:416:3
+    414|   });
+    415|
+    416|   it('transitions to ADMIN_OVERRIDE after exactly 3 taps in the hiddenΓÇª
+       |   ^
+    417|     renderWithRegistry(<Kiosk />, initialRegistry);
+    418|     await triggerLock();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[17/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > does not transition to ADMIN_OVERRIDE after only 2 taps
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:428:3
+    426|   });
+    427|
+    428|   it('does not transition to ADMIN_OVERRIDE after only 2 taps', async ΓÇª
+       |   ^
+    429|     renderWithRegistry(<Kiosk />, initialRegistry);
+    430|     await triggerLock();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[18/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > shows "Admin Mode" banner in ADMIN_OVERRIDE step
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:439:3
+    437|   });
+    438|
+    439|   it('shows "Admin Mode" banner in ADMIN_OVERRIDE step', async () => {
+       |   ^
+    440|     renderWithRegistry(<Kiosk />, initialRegistry);
+    441|     await triggerLock();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[19/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > transitions to SUCCESS after entering the correct admin PIN
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:451:3
+    449|   });
+    450|
+    451|   it('transitions to SUCCESS after entering the correct admin PIN', asΓÇª
+       |   ^
+    452|     renderWithRegistry(<Kiosk />, initialRegistry);
+    453|     await triggerLock();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[20/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > writes syncStatus 2 (Staff Override) after admin PIN accepted
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:469:3
+    467|   });
+    468|
+    469|   it('writes syncStatus 2 (Staff Override) after admin PIN accepted', ΓÇª
+       |   ^
+    470|     const reg = [{ ...initialRegistry[0] }];
+    471|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[21/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > increments the quorum counter after admin PIN accepted
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:489:3
+    487|   });
+    488|
+    489|   it('increments the quorum counter after admin PIN accepted', async (ΓÇª
+       |   ^
+    490|     const reg = [{ ...initialRegistry[0] }];
+    491|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[22/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > stays in ADMIN_OVERRIDE and clears PIN after a wrong admin PIN
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:508:3
+    506|   });
+    507|
+    508|   it('stays in ADMIN_OVERRIDE and clears PIN after a wrong admin PIN',ΓÇª
+       |   ^
+    509|     renderWithRegistry(<Kiosk />, initialRegistry);
+    510|     await triggerLock();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[23/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö admin override (hidden tap + PIN) > resets to IDLE on Cancel Override button click
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:527:3
+    525|   });
+    526|
+    527|   it('resets to IDLE on Cancel Override button click', async () => {
+       |   ^
+    528|     renderWithRegistry(<Kiosk />, initialRegistry);
+    529|     await triggerLock();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[24/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > transitions to MANUAL_SEARCH when "Search by Name" is clicked
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:542:3
+    540|
+    541| describe('Kiosk ΓÇö manual name search (MANUAL_SEARCH step)', () => {
+    542|   it('transitions to MANUAL_SEARCH when "Search by Name" is clicked', ΓÇª
+       |   ^
+    543|     renderWithRegistry(<Kiosk />, initialRegistry);
+    544|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[25/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > shows no results when fewer than 2 characters are typed
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:548:3
+    546|   });
+    547|
+    548|   it('shows no results when fewer than 2 characters are typed', async ΓÇª
+       |   ^
+    549|     renderWithRegistry(<Kiosk />, initialRegistry);
+    550|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[26/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > shows matching captains after typing 2+ characters of last name
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:555:3
+    553|   });
+    554|
+    555|   it('shows matching captains after typing 2+ characters of last name'ΓÇª
+       |   ^
+    556|     renderWithRegistry(<Kiosk />, initialRegistry);
+    557|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[27/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > only shows captains with syncStatus 0 (Pending) in search results
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:562:3
+    560|   });
+    561|
+    562|   it('only shows captains with syncStatus 0 (Pending) in search resultΓÇª
+       |   ^
+    563|     const reg = [
+    564|       { ...initialRegistry[0], lastName: 'Doe', syncStatus: 0 },
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[28/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > does NOT show captains with syncStatus 1 in search results
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:575:3
+    573|   });
+    574|
+    575|   it('does NOT show captains with syncStatus 1 in search results', asyΓÇª
+       |   ^
+    576|     renderWithRegistry(<Kiosk />, initialRegistry);
+    577|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[29/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > does NOT show captains with syncStatus 3 in search results
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:582:3
+    580|   });
+    581|
+    582|   it('does NOT show captains with syncStatus 3 in search results', asyΓÇª
+       |   ^
+    583|     const reg = [{ ...initialRegistry[0], syncStatus: 3 }];
+    584|     renderWithRegistry(<Kiosk />, reg);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[30/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > transitions to VERIFYING after selecting a captain from the list
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:590:3
+    588|   });
+    589|
+    590|   it('transitions to VERIFYING after selecting a captain from the listΓÇª
+       |   ^
+    591|     renderWithRegistry(<Kiosk />, initialRegistry);
+    592|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[31/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > shows the selected captain name and precinct in VERIFYING after manual select
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:601:3
+    599|   });
+    600|
+    601|   it('shows the selected captain name and precinct in VERIFYING after ΓÇª
+       |   ^
+    602|     renderWithRegistry(<Kiosk />, initialRegistry);
+    603|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[32/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > is case-insensitive ΓÇö "do" matches "Doe"
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:611:3
+    609|   });
+    610|
+    611|   it('is case-insensitive ΓÇö "do" matches "Doe"', async () => {
+       |   ^
+    612|     renderWithRegistry(<Kiosk />, initialRegistry);
+    613|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[33/34]ΓÄ»
+
+ FAIL  src/test/kiosk.test.tsx > Kiosk ΓÇö manual name search (MANUAL_SEARCH step) > resets to IDLE on Cancel button click
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ Γ¥» src/test/kiosk.test.tsx:618:3
+    616|   });
+    617|
+    618|   it('resets to IDLE on Cancel button click', async () => {
+       |   ^
+    619|     renderWithRegistry(<Kiosk />, initialRegistry);
+    620|     await userEvent.click(screen.getByRole('button', { name: /no qr coΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[34/34]ΓÄ»
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m34 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (45)[39m
+[2m   Start at [22m 07:33:57
+[2m   Duration [22m 173.17s[2m (transform 106ms, setup 123ms, import 321ms, tests 171.68s, environment 887ms)[22m
+

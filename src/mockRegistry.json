@@ -1,0 +1,26 @@
+[
+  {
+    "uuid": "OH-123456",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "precinct": "KETTERING 1-A",
+    "precinctId": "5701",
+    "precinctAbbr": "KET-1A",
+    "zip": "45429",
+    "phoneLast4": "8922",
+    "status": "Active",
+    "syncStatus": 0
+  },
+  {
+    "uuid": "OH-789012",
+    "firstName": "John",
+    "lastName": "Smith",
+    "precinct": "KETTERING 1-B",
+    "precinctId": "5702",
+    "precinctAbbr": "KET-1B",
+    "zip": "45440",
+    "phoneLast4": null,
+    "status": "Active",
+    "syncStatus": 0
+  }
+]
