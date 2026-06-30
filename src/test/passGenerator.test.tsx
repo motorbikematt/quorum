@@ -23,6 +23,18 @@ const mockRegistry: Captain[] = [
     status: 'Active',
     syncStatus: 0,
   },
+  {
+    uuid: 'uuid-2',
+    firstName: 'John',
+    lastName: 'Smith',
+    precinct: 'KETTERING 1-B',
+    precinctId: '5702',
+    precinctAbbr: 'KET-1B',
+    zip: '45440',
+    phoneLast4: null,
+    status: 'Active',
+    syncStatus: 0,
+  },
 ];
 
 describe('PassGenerator — lookup', () => {
@@ -132,6 +144,17 @@ describe('PassGenerator — QR payload', () => {
 });
 
 describe('PassGenerator — precincts.info CTA', () => {
+  let openSpy: any;
+
+  beforeEach(() => {
+    openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+  });
+
+  afterEach(() => {
+    openSpy.mockRestore();
+    vi.restoreAllMocks();
+  });
+
   it('shows the activate button after a successful lookup', async () => {
     renderWithRegistry(<PassGenerator />, mockRegistry);
     await userEvent.type(screen.getByPlaceholderText('e.g. Doe'), 'Doe');
@@ -151,5 +174,50 @@ describe('PassGenerator — precincts.info CTA', () => {
   it('does not show the activate button before a successful lookup', () => {
     renderWithRegistry(<PassGenerator />, mockRegistry);
     expect(screen.queryByRole('button', { name: /click here to set a password/i })).not.toBeInTheDocument();
+  });
+
+  it('opens activation URL with correct v_id when clicked', async () => {
+    renderWithRegistry(<PassGenerator />, mockRegistry);
+    await userEvent.type(screen.getByPlaceholderText('e.g. Doe'), 'Doe');
+    await userEvent.type(screen.getByPlaceholderText('e.g. 45429'), '45429');
+    await userEvent.click(screen.getByText('Retrieve Pass'));
+    
+    await userEvent.click(screen.getByRole('button', { name: /click here to set a password/i }));
+    
+    expect(openSpy).toHaveBeenCalled();
+    const openedUrl = new URL(openSpy.mock.calls[0][0]);
+    expect(openedUrl.origin).toBe('https://precincts.info');
+    expect(openedUrl.pathname).toBe('/activate');
+    expect(openedUrl.searchParams.get('v_id')).toBe('uuid-1');
+    expect(openedUrl.searchParams.get('needs_phone')).toBeNull();
+  });
+
+  it('opens activation URL with needs_phone=true when captain has no phone number', async () => {
+    renderWithRegistry(<PassGenerator />, mockRegistry);
+    await userEvent.type(screen.getByPlaceholderText('e.g. Doe'), 'Smith');
+    await userEvent.type(screen.getByPlaceholderText('e.g. 45429'), '45440');
+    await userEvent.click(screen.getByText('Retrieve Pass'));
+    
+    await userEvent.click(screen.getByRole('button', { name: /click here to set a password/i }));
+    
+    expect(openSpy).toHaveBeenCalled();
+    const openedUrl = new URL(openSpy.mock.calls[0][0]);
+    expect(openedUrl.searchParams.get('v_id')).toBe('uuid-2');
+    expect(openedUrl.searchParams.get('needs_phone')).toBe('true');
+  });
+
+  it('propagates captainApi parameter to the activation URL if present', async () => {
+    vi.stubGlobal('location', new URL('http://localhost:5173/pass?captainApi=http://exsoinc.tailb94e6b.ts.net:8000'));
+
+    renderWithRegistry(<PassGenerator />, mockRegistry);
+    await userEvent.type(screen.getByPlaceholderText('e.g. Doe'), 'Doe');
+    await userEvent.type(screen.getByPlaceholderText('e.g. 45429'), '45429');
+    await userEvent.click(screen.getByText('Retrieve Pass'));
+    
+    await userEvent.click(screen.getByRole('button', { name: /click here to set a password/i }));
+    
+    expect(openSpy).toHaveBeenCalled();
+    const openedUrl = new URL(openSpy.mock.calls[0][0]);
+    expect(openedUrl.searchParams.get('captainApi')).toBe('http://exsoinc.tailb94e6b.ts.net:8000');
   });
 });
