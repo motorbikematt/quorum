@@ -8,6 +8,7 @@ export type Captain = {
   zip: string;
   phone: string | null;   // Full 10-digit phone number
   phoneLast4: string | null; // null = not yet collected; app collects on first check-in
+  email: string | null;  // null = not yet collected; required for precincts.info activation
   status: string;
   syncStatus: number; // 0=Pending 1=Verified 2=StaffOverride 3=Locked
 };

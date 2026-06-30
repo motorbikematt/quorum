@@ -26,6 +26,10 @@ Since Quorum involves both a personal mobile device (for pass generation) and a 
    - Have the tester connect to the same Wi-Fi network.
    - Have them navigate to `http://192.168.1.X:5173/#/pass` on their smartphone.
 
+5. **Demo Reset (For you):**
+   - Open a separate tab to `http://192.168.1.X:5173/#/demo`.
+   - Use this page to instantly reset the database between tests.
+
 ---
 
 ## Phase 2: Test Scenarios
@@ -45,7 +49,7 @@ To get the most accurate feedback, assign your tester a "Persona" from the mock 
 1. **Wrong Info:** Ask them to retrieve a pass using the wrong zip code. (Observe how they recover).
 2. **Manual Search:** On the Kiosk, ask them to check in *without* a QR code by using the "Search by Name" fallback.
 3. **Admin Lockout:** Have them scan a valid QR code, but purposely enter the wrong PIN 3 times until the screen locks. Ask them what they think they should do next.
-4. **Missing Phone Number:** Assign the tester the **John Smith** persona. Ask them to retrieve his pass and scan it. The Kiosk should realize he doesn't have a phone on file and prompt him to enter a 4-digit PIN to save for the future.
+4. **Missing Phone Number:** Assign the tester the **John Smith** persona. Ask them to retrieve his pass and scan it. The Kiosk should realize he doesn't have a phone on file and prompt him to enter his full 10-digit cell phone number. Once submitted, it should transition immediately to the standard 4-digit PIN verification to confirm his identity.
 5. **Staff Override (For you):** Practice using the "Hidden Tap" admin override (tap the bottom-left corner 3 times) to unlock the screen.
 
 ---

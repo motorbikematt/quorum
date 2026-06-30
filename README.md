@@ -1,32 +1,41 @@
-# React + TypeScript + Vite
+# Quorum
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Quorum is a specialized event check-in system designed to bridge physical attendance with a digital credentialing pipeline. It consists of a physical iPad Kiosk for scanning passes and a web-based mobile dashboard for captains to generate their credentials and activate their accounts.
 
-Currently, two official plugins are available:
+## Core Flow
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. **Pass Generation:** Captains visit the Pass Generator on their personal mobile devices, look up their credentials (Name, Zip Code), and receive a secure, time-limited QR code.
+2. **Kiosk Check-in:** Captains present their QR code to the Quorum Kiosk iPad.
+3. **Identity Verification:** The Kiosk verifies the pass and, if necessary, collects a 10-digit phone number, followed by a mandatory 4-digit PIN (last 4 digits of the phone number) to ensure the person holding the pass is the actual captain.
+4. **Dashboard Activation:** Once checked in, the Kiosk instructs captains to tap a button on their phone to activate their digital dashboard, which they complete by verifying their 10-digit phone number.
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js (v18+)
+- npm
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+### Installation
+```bash
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Running Locally
+To start the local development server and expose it to your local network (useful for testing on actual mobile devices):
+```bash
+npm run dev -- --host
+```
+
+### Key Routes
+- `/#/kiosk` - The primary physical iPad check-in interface.
+- `/#/pass` - The mobile web interface for generating QR passes.
+- `/#/demo` - A hidden control panel for resetting the local mock registry during user testing and demonstrations.
+
+## Testing
+
+For comprehensive details on how to conduct user testing, please refer to the `User_Testing_Guide.md` located in the root of this repository.
+
+To run the Vitest test suite:
+```bash
+npm run test
+```
