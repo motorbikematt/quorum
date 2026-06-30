@@ -9,7 +9,9 @@ const createCaptain = (syncStatus: number): Captain => ({
   precinctId: '0000',
   precinctAbbr: 'T-1',
   zip: '12345',
+  phone: '5551230000',
   phoneLast4: '0000',
+  email: null,
   status: 'Active',
   syncStatus,
 });

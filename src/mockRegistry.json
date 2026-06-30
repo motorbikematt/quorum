@@ -9,6 +9,7 @@
     "zip": "45429",
     "phone": "5551238922",
     "phoneLast4": "8922",
+    "email": "jane.doe@example.com",
     "status": "Active",
     "syncStatus": 0
   },
@@ -22,6 +23,7 @@
     "zip": "45440",
     "phone": null,
     "phoneLast4": null,
+    "email": null,
     "status": "Active",
     "syncStatus": 0
   }

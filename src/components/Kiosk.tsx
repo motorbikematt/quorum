@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { QRScanner } from './QRScanner';
 import { Numpad } from './Numpad';
-import { useRegistry, type Captain } from '../context/RegistryContext';
+import { useRegistry } from '../context/RegistryContext';
+import { type Captain } from '../lib/registryUtils';
 import { CheckCircle, AlertTriangle, Users } from 'lucide-react';
 
 // Change before each event. Do not commit the real value to a public repo.
@@ -19,7 +20,7 @@ type Step = 'IDLE' | 'SCANNING' | 'MANUAL_SEARCH' | 'VERIFYING' | 'COLLECT_PHONE
  * Handles anti-proxy locking and admin overrides.
  */
 export const Kiosk: React.FC = () => {
-  const { registry, updateSyncStatus, updatePhoneLast4, getCheckedInCount } = useRegistry();
+  const { registry, updateSyncStatus, updatePhone, updateEmail, getCheckedInCount } = useRegistry();
   const [step, setStep] = useState<Step>('IDLE');
   const [scannedCaptain, setScannedCaptain] = useState<Captain | null>(null);
   const [pin, setPin] = useState('');
@@ -27,8 +28,8 @@ export const Kiosk: React.FC = () => {
   const [hiddenTapCount, setHiddenTapCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [smsConsent, setSmsConsent] = useState(false);
+  const [email, setEmail] = useState('');
   const [identityConfirmed, setIdentityConfirmed] = useState(false);
-  const { updatePhone } = useRegistry();
 
   /**
    * Parses the scanned QR code payload, checks expiration, and transitions 
@@ -76,8 +77,11 @@ export const Kiosk: React.FC = () => {
     if (!scannedCaptain || !smsConsent) return;
     if (pin.length === 10) {
       updatePhone(scannedCaptain.uuid, pin);
+      const trimmedEmail = email.trim();
+      if (trimmedEmail) updateEmail(scannedCaptain.uuid, trimmedEmail);
       setScannedCaptain({ ...scannedCaptain, phoneLast4: pin.slice(-4) });
       setPin('');
+      setEmail('');
       setIdentityConfirmed(false);
       setStep('VERIFYING');
     }
@@ -133,6 +137,7 @@ export const Kiosk: React.FC = () => {
     setSearchQuery('');
     setSmsConsent(false);
     setIdentityConfirmed(false);
+    setEmail('');
   };
 
   const handleHiddenTap = () => {
@@ -325,6 +330,20 @@ export const Kiosk: React.FC = () => {
               <label htmlFor="smsConsent" className="ml-3 text-slate-600 text-sm cursor-pointer">
                 I confirm this is my personal cell phone number and I consent to receive important meeting updates via SMS.
               </label>
+            </div>
+
+            <div className="mt-6 text-left px-4">
+              <label htmlFor="email" className="block text-slate-600 text-sm mb-2">
+                Email (optional) &mdash; for dashboard activation and account recovery
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full p-4 text-xl border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              />
             </div>
             
             <button onClick={reset} className="mt-8 text-slate-500 font-bold text-xl hover:text-slate-700">Cancel</button>

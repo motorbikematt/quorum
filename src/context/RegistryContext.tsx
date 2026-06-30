@@ -8,6 +8,7 @@ interface RegistryContextType {
   updateSyncStatus: (uuid: string, status: number) => void;
   updatePhoneLast4: (uuid: string, phoneLast4: string) => void;
   updatePhone: (uuid: string, phone: string) => void;
+  updateEmail: (uuid: string, email: string) => void;
   getCheckedInCount: () => number;
 }
 
@@ -53,6 +54,17 @@ export const RegistryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
+  // Self-service write path: a captain supplies their own email at the kiosk.
+  // The seeder may pre-fill email from the party spreadsheet; this lets a
+  // captain add or correct it when the seed had none.
+  const updateEmail = (uuid: string, email: string) => {
+    setRegistry(prev => {
+      const updated = prev.map(c => c.uuid === uuid ? { ...c, email } : c);
+      localStorage.setItem('quorumRegistry', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   useEffect(() => {
     if (!GAS_ENDPOINT) return;
     const id = setInterval(() => flushToGAS(registry), 30_000);
@@ -62,7 +74,7 @@ export const RegistryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getCheckedInCount = () => countCheckedIn(registry);
 
   return (
-    <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, getCheckedInCount }}>
+    <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, updateEmail, getCheckedInCount }}>
       {children}
     </RegistryContext.Provider>
   );

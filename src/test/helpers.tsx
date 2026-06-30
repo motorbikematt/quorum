@@ -38,9 +38,17 @@ export function renderWithRegistry(ui: React.ReactElement, initialRegistry: Capt
         return updated;
       });
     };
-    
+
+    const updateEmail = (uuid: string, email: string) => {
+      setRegistry(prev => {
+        const updated = prev.map(c => c.uuid === uuid ? { ...c, email } : c);
+        localStorage.setItem('quorumRegistry', JSON.stringify(updated));
+        return updated;
+      });
+    };
+
     return (
-      <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, getCheckedInCount }}>
+      <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, updateEmail, getCheckedInCount }}>
         <MemoryRouter>
           {children}
         </MemoryRouter>
