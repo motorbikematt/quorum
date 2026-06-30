@@ -1,10 +1,9 @@
-import React from 'react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRegistry } from './helpers';
 import { Kiosk } from '../components/Kiosk';
-import { Captain } from '../lib/registryUtils';
+import { type Captain } from '../lib/registryUtils';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const initialRegistry: Captain[] = [
@@ -55,7 +54,7 @@ const initialRegistry: Captain[] = [
 function simulateScan(payload: object | string) {
   const mockScanner = vi.mocked(Html5QrcodeScanner).mock.instances[0];
   if (!mockScanner) throw new Error("Html5QrcodeScanner not initialized");
-  const onScanSuccess = mockScanner.render.mock.calls[0][0];
+  const onScanSuccess = vi.mocked(mockScanner.render).mock.calls[0][0] as (decodedText: string) => void;
   const str = typeof payload === 'string' ? payload : JSON.stringify(payload);
   act(() => {
     onScanSuccess(str);
@@ -137,7 +136,7 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -156,7 +155,7 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -175,7 +174,7 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -198,7 +197,7 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     fireEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbF = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbF && !(cbF).checked) {
+      if (cbF && !(cbF as HTMLInputElement).checked) {
         fireEvent.click(cbF);
       }
     }
@@ -352,7 +351,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -371,7 +370,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -391,7 +390,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -404,7 +403,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -425,7 +424,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -437,7 +436,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -458,7 +457,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -470,7 +469,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -491,7 +490,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -503,7 +502,7 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -522,7 +521,7 @@ async function triggerLock() {
   await userEvent.click(screen.getByRole('button', { name: '1' }));
   {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -534,7 +533,7 @@ async function triggerLock() {
   await userEvent.click(screen.getByRole('button', { name: '2' }));
   {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -598,7 +597,7 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -623,7 +622,7 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -649,7 +648,7 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }
@@ -673,7 +672,7 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '4' }));
     {
       const cbU = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbU && !(cbU).checked) {
+      if (cbU && !(cbU as HTMLInputElement).checked) {
         await userEvent.click(cbU);
       }
     }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { countCheckedIn, buildGASPayload, Captain } from '../lib/registryUtils';
+import { countCheckedIn, buildGASPayload, type Captain } from '../lib/registryUtils';
 
 const createCaptain = (syncStatus: number): Captain => ({
   uuid: `uuid-${Math.random()}`,

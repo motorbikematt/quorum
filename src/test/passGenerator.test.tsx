@@ -1,10 +1,10 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRegistry } from './helpers';
 import { PassGenerator } from '../components/PassGenerator';
-import { Captain } from '../lib/registryUtils';
+import { type Captain } from '../lib/registryUtils';
 
 vi.mock('qrcode.react', () => ({
   QRCodeSVG: ({ value }: { value: string }) => React.createElement('div', { 'data-testid': 'qr-code', 'data-value': value })

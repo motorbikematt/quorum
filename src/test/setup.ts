@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 
 vi.mock('html5-qrcode', () => ({
   Html5QrcodeScanner: vi.fn().mockImplementation(function(this: any) {

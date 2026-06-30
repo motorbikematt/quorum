@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { flushToGAS, Captain } from '../lib/registryUtils';
+import { flushToGAS, type Captain } from '../lib/registryUtils';
 
 const createCaptain = (syncStatus: number): Captain => ({
   uuid: `uuid-${Math.random()}`,
@@ -27,23 +27,23 @@ describe('GAS sync — fetch behavior', () => {
 
   it('does not call fetch when GAS_ENDPOINT is empty string', async () => {
     await flushToGAS([createCaptain(1)], '');
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('does not call fetch when all records have syncStatus 0', async () => {
     await flushToGAS([createCaptain(0)], 'http://test.local');
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('calls fetch with POST method when verified records exist', async () => {
     await flushToGAS([createCaptain(1)], 'http://test.local');
-    expect(global.fetch).toHaveBeenCalledWith('http://test.local', expect.objectContaining({ method: 'POST' }));
+    expect(globalThis.fetch).toHaveBeenCalledWith('http://test.local', expect.objectContaining({ method: 'POST' }));
   });
 
   it('sends only records with syncStatus > 0 in the POST body', async () => {
     await flushToGAS([createCaptain(0), createCaptain(1)], 'http://test.local');
     
-    const callArgs = vi.mocked(global.fetch).mock.calls[0];
+    const callArgs = vi.mocked(globalThis.fetch).mock.calls[0];
     const body = JSON.parse(callArgs[1]!.body as string);
     expect(body.length).toBe(1);
     expect(body[0].syncStatus).toBe(1);
@@ -51,14 +51,14 @@ describe('GAS sync — fetch behavior', () => {
 
   it('the POST body is valid JSON parseable to an array', async () => {
     await flushToGAS([createCaptain(1)], 'http://test.local');
-    const callArgs = vi.mocked(global.fetch).mock.calls[0];
+    const callArgs = vi.mocked(globalThis.fetch).mock.calls[0];
     const body = JSON.parse(callArgs[1]!.body as string);
     expect(Array.isArray(body)).toBe(true);
   });
 
   it('each array element has uuid (string), timestamp (number), syncStatus (number)', async () => {
     await flushToGAS([createCaptain(1)], 'http://test.local');
-    const callArgs = vi.mocked(global.fetch).mock.calls[0];
+    const callArgs = vi.mocked(globalThis.fetch).mock.calls[0];
     const body = JSON.parse(callArgs[1]!.body as string);
     expect(typeof body[0].uuid).toBe('string');
     expect(typeof body[0].timestamp).toBe('number');
@@ -66,7 +66,7 @@ describe('GAS sync — fetch behavior', () => {
   });
 
   it('does not throw when fetch rejects (offline — swallowed silently)', async () => {
-    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network error'));
+    vi.mocked(globalThis.fetch).mockRejectedValueOnce(new Error('Network error'));
     
     await expect(flushToGAS([createCaptain(1)], 'http://test.local')).resolves.toBeUndefined();
   });
