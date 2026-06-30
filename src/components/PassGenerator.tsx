@@ -8,7 +8,7 @@ export const PassGenerator: React.FC = () => {
   const [zipCode, setZipCode] = useState('');
   const [passData, setPassData] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [captainInfo, setCaptainInfo] = useState<{name: string, pct: string} | null>(null);
+  const [captainInfo, setCaptainInfo] = useState<{name: string, pct: string, v_id: string, needsPhone: boolean} | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,12 @@ export const PassGenerator: React.FC = () => {
         exp
       };
       setPassData(JSON.stringify(payload));
-      setCaptainInfo({ name: `${captain.firstName} ${captain.lastName}`, pct: captain.precinct });
+      setCaptainInfo({ 
+        name: `${captain.firstName} ${captain.lastName}`, 
+        pct: captain.precinct,
+        v_id: captain.uuid,
+        needsPhone: captain.phoneLast4 === null
+      });
     } else {
       setError('No record found matching that information.');
       setPassData(null);
@@ -91,7 +96,22 @@ export const PassGenerator: React.FC = () => {
               <p className="text-emerald-800 font-medium mb-3 text-sm">
                 Your credentials for the Central Committee meeting are ready. As the representative for {captainInfo?.pct}, your precincts.info publishing dashboard is standing by.
               </p>
-              <button onClick={() => window.open('https://precincts.info/activate', '_blank')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all active:scale-95 text-sm">
+              <button onClick={() => {
+                  const url = new URL('https://precincts.info/activate');
+                  const currentParams = new URLSearchParams(window.location.search);
+                  const apiOverride = currentParams.get('captainApi');
+                  if (apiOverride) {
+                    url.searchParams.set('captainApi', apiOverride);
+                  }
+                  if (captainInfo) {
+                    url.searchParams.set('v_id', captainInfo.v_id);
+                    if (captainInfo.needsPhone) {
+                      url.searchParams.set('needs_phone', 'true');
+                    }
+                  }
+                  window.open(url.toString(), '_blank');
+                }} 
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all active:scale-95 text-sm">
                 Click here to set a password
               </button>
             </div>

@@ -30,8 +30,17 @@ export function renderWithRegistry(ui: React.ReactElement, initialRegistry: Capt
     
     const getCheckedInCount = () => countCheckedIn(registry);
     
+    const updatePhone = (uuid: string, phone: string) => {
+      setRegistry(prev => {
+        const phoneLast4 = phone.slice(-4);
+        const updated = prev.map(c => c.uuid === uuid ? { ...c, phone, phoneLast4 } : c);
+        localStorage.setItem('quorumRegistry', JSON.stringify(updated));
+        return updated;
+      });
+    };
+    
     return (
-      <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, getCheckedInCount }}>
+      <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, getCheckedInCount }}>
         <MemoryRouter>
           {children}
         </MemoryRouter>

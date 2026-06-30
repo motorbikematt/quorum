@@ -64,6 +64,11 @@ function getValidPayload(uuid = 'uuid-1') {
   };
 }
 
+afterEach(() => {
+  vi.useRealTimers();
+  vi.clearAllMocks();
+});
+
 describe('Kiosk — idle screen', () => {
   it('renders "Tap to Scan QR Pass" button on mount', () => {
     renderWithRegistry(<Kiosk />, initialRegistry);
@@ -99,7 +104,14 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     renderWithRegistry(<Kiosk />, initialRegistry);
     await userEvent.click(screen.getByRole('button', { name: /tap to scan qr pass/i }));
     simulateScan(getValidPayload());
-    expect(screen.getByText(/Jane Doe/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Jane Doe/i)[0]).toBeInTheDocument();
+  });
+
+  it('renders a Numpad for entering PIN', async () => {
+    renderWithRegistry(<Kiosk />, initialRegistry);
+    await userEvent.click(screen.getByRole('button', { name: /tap to scan qr pass/i }));
+    simulateScan(getValidPayload());
+    expect(screen.getByText(/To verify your identity/i)).toBeInTheDocument();
   });
 
   it('displays the captain precinct in the VERIFYING screen', async () => {
@@ -117,6 +129,12 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     expect(screen.getByText(/Verification Complete/i)).toBeInTheDocument();
   });
@@ -130,6 +148,12 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     expect(screen.getByText(/Live Quorum: 1 Verified/i)).toBeInTheDocument();
   });
@@ -143,6 +167,12 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     const stored = JSON.parse(localStorage.getItem('quorumRegistry')!);
@@ -160,6 +190,12 @@ describe('Kiosk — QR scan flow (happy path)', () => {
     fireEvent.click(screen.getByRole('button', { name: '9' }));
     fireEvent.click(screen.getByRole('button', { name: '2' }));
     fireEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbF = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbF && !(cbF).checked) {
+        fireEvent.click(cbF);
+      }
+    }
     fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     act(() => {
@@ -179,16 +215,23 @@ describe('Kiosk — null phone collection path', () => {
     expect(screen.getByText(/We don't have a phone number on file/i)).toBeInTheDocument();
   });
 
-  it('accepts the first 4-digit PIN as the new phoneLast4 and transitions to SUCCESS', async () => {
+  it('accepts a 10-digit PIN and SMS consent as the new phone and transitions to SUCCESS', async () => {
     vi.useFakeTimers();
     renderWithRegistry(<Kiosk />, initialRegistry);
     fireEvent.click(screen.getByRole('button', { name: /tap to scan qr pass/i }));
     simulateScan(getValidPayload('uuid-3'));
     
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    for (let i = 0; i < 10; i++) {
+      fireEvent.click(screen.getByRole('button', { name: '5' }));
+    }
+    
+    fireEvent.click(screen.getByLabelText(/I confirm this is my personal cell phone number/i));
+    {
+      const cbF = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbF && !(cbF).checked) {
+        fireEvent.click(cbF);
+      }
+    }
     fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Verification Complete/i)).toBeInTheDocument();
@@ -199,20 +242,28 @@ describe('Kiosk — null phone collection path', () => {
     vi.useRealTimers();
   });
 
-  it('saves the collected phoneLast4 and syncStatus 1 to localStorage', async () => {
+  it('saves the collected phone and syncStatus 1 to localStorage', async () => {
     vi.useFakeTimers();
     renderWithRegistry(<Kiosk />, initialRegistry);
     fireEvent.click(screen.getByRole('button', { name: /tap to scan qr pass/i }));
     simulateScan(getValidPayload('uuid-3'));
     
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
-    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    for (let i = 0; i < 10; i++) {
+      fireEvent.click(screen.getByRole('button', { name: '5' }));
+    }
+    
+    fireEvent.click(screen.getByLabelText(/I confirm this is my personal cell phone number/i));
+    {
+      const cbF = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbF && !(cbF).checked) {
+        fireEvent.click(cbF);
+      }
+    }
     fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     const stored = JSON.parse(localStorage.getItem('quorumRegistry')!);
     const updatedCaptain = stored.find((c: Captain) => c.uuid === 'uuid-3');
+    expect(updatedCaptain.phone).toBe('5555555555');
     expect(updatedCaptain.phoneLast4).toBe('5555');
     expect(updatedCaptain.syncStatus).toBe(1);
     
@@ -287,6 +338,12 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Welcome, Captain/i)).toBeInTheDocument();
@@ -300,6 +357,12 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.queryByText('*')).not.toBeInTheDocument();
@@ -314,6 +377,12 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     expect(screen.queryByText(/Verification Failed/i)).not.toBeInTheDocument();
 
@@ -321,6 +390,12 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Verification Failed/i)).toBeInTheDocument();
@@ -336,12 +411,24 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     const stored = JSON.parse(localStorage.getItem('quorumRegistry')!);
@@ -357,12 +444,24 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Staff Assistance Required/i)).toBeInTheDocument();
@@ -378,12 +477,24 @@ describe('Kiosk — PIN failure and lockout', () => {
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
     await userEvent.click(screen.getByRole('button', { name: '1' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '2' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Live Quorum: 0 Verified/i)).toBeInTheDocument();
@@ -397,13 +508,25 @@ async function triggerLock() {
   await userEvent.click(screen.getByRole('button', { name: '1' }));
   await userEvent.click(screen.getByRole('button', { name: '1' }));
   await userEvent.click(screen.getByRole('button', { name: '1' }));
-  await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
+  {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
+    await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
   
   await userEvent.click(screen.getByRole('button', { name: '2' }));
   await userEvent.click(screen.getByRole('button', { name: '2' }));
   await userEvent.click(screen.getByRole('button', { name: '2' }));
   await userEvent.click(screen.getByRole('button', { name: '2' }));
-  await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
+  {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
+    await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
 }
 
 describe('Kiosk — admin override (hidden tap + PIN)', () => {
@@ -461,6 +584,12 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '9' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Verification Complete/i)).toBeInTheDocument();
@@ -480,6 +609,12 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '9' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     const stored = JSON.parse(localStorage.getItem('quorumRegistry')!);
@@ -500,6 +635,12 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '9' }));
     await userEvent.click(screen.getByRole('button', { name: '9' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Live Quorum: 1 Verified/i)).toBeInTheDocument();
@@ -518,6 +659,12 @@ describe('Kiosk — admin override (hidden tap + PIN)', () => {
     await userEvent.click(screen.getByRole('button', { name: '2' }));
     await userEvent.click(screen.getByRole('button', { name: '3' }));
     await userEvent.click(screen.getByRole('button', { name: '4' }));
+    {
+      const cbU = screen.queryByLabelText(/I confirm that I am/i);
+      if (cbU && !(cbU).checked) {
+        await userEvent.click(cbU);
+      }
+    }
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Admin Mode/i)).toBeInTheDocument();
@@ -559,7 +706,7 @@ describe('Kiosk — manual name search (MANUAL_SEARCH step)', () => {
     expect(screen.getByText(/Doe, Jane/i)).toBeInTheDocument();
   });
 
-  it('only shows captains with syncStatus 0 (Pending) in search results', async () => {
+  it('shows captains with syncStatus > 0 in search results with a Checked In badge', async () => {
     const reg = [
       { ...initialRegistry[0], lastName: 'Doe', syncStatus: 0 },
       { ...initialRegistry[0], uuid: 'uuid-x', lastName: 'Doe', firstName: 'Jack', syncStatus: 1 }
@@ -569,22 +716,26 @@ describe('Kiosk — manual name search (MANUAL_SEARCH step)', () => {
     await userEvent.type(screen.getByPlaceholderText(/Type first letters/i), 'Do');
     
     expect(screen.getByText(/Doe, Jane/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Doe, Jack/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Doe, Jack/i)).toBeInTheDocument();
+    expect(screen.getByText(/Checked In/i)).toBeInTheDocument();
   });
 
-  it('does NOT show captains with syncStatus 1 in search results', async () => {
-    renderWithRegistry(<Kiosk />, initialRegistry);
-    await userEvent.click(screen.getByRole('button', { name: /no qr code\? search by name/i }));
-    await userEvent.type(screen.getByPlaceholderText(/Type first letters/i), 'Sm');
-    expect(screen.queryByText(/Smith, John/i)).not.toBeInTheDocument();
-  });
-
-  it('does NOT show captains with syncStatus 3 in search results', async () => {
-    const reg = [{ ...initialRegistry[0], syncStatus: 3 }];
+  it('prevents transitioning to VERIFYING if a checked-in captain is clicked in manual search', async () => {
+    // Mock window.alert
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const reg = [
+      { ...initialRegistry[0], lastName: 'Doe', syncStatus: 1 },
+    ];
     renderWithRegistry(<Kiosk />, reg);
     await userEvent.click(screen.getByRole('button', { name: /no qr code\? search by name/i }));
     await userEvent.type(screen.getByPlaceholderText(/Type first letters/i), 'Do');
-    expect(screen.queryByText(/Doe, Jane/i)).not.toBeInTheDocument();
+    
+    const btn = screen.getByText(/Doe, Jane/i).closest('button');
+    await userEvent.click(btn!);
+    
+    expect(alertMock).toHaveBeenCalledWith('Captain is already checked in.');
+    expect(screen.queryByText(/Welcome, Captain/i)).not.toBeInTheDocument();
+    alertMock.mockRestore();
   });
 
   it('transitions to VERIFYING after selecting a captain from the list', async () => {

@@ -7,6 +7,7 @@ interface RegistryContextType {
   registry: Captain[];
   updateSyncStatus: (uuid: string, status: number) => void;
   updatePhoneLast4: (uuid: string, phoneLast4: string) => void;
+  updatePhone: (uuid: string, phone: string) => void;
   getCheckedInCount: () => number;
 }
 
@@ -43,6 +44,15 @@ export const RegistryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
+  const updatePhone = (uuid: string, phone: string) => {
+    setRegistry(prev => {
+      const phoneLast4 = phone.slice(-4);
+      const updated = prev.map(c => c.uuid === uuid ? { ...c, phone, phoneLast4 } : c);
+      localStorage.setItem('quorumRegistry', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   useEffect(() => {
     if (!GAS_ENDPOINT) return;
     const id = setInterval(() => flushToGAS(registry), 30_000);
@@ -52,7 +62,7 @@ export const RegistryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getCheckedInCount = () => countCheckedIn(registry);
 
   return (
-    <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, getCheckedInCount }}>
+    <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, getCheckedInCount }}>
       {children}
     </RegistryContext.Provider>
   );

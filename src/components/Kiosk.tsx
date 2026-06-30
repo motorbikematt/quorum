@@ -7,7 +7,7 @@ import { CheckCircle, AlertTriangle, Users } from 'lucide-react';
 // Change before each event. Do not commit the real value to a public repo.
 const ADMIN_PIN = '9999';
 
-type Step = 'IDLE' | 'SCANNING' | 'MANUAL_SEARCH' | 'VERIFYING' | 'SUCCESS' | 'LOCKED' | 'ADMIN_OVERRIDE';
+type Step = 'IDLE' | 'SCANNING' | 'MANUAL_SEARCH' | 'VERIFYING' | 'COLLECT_PHONE' | 'SUCCESS' | 'LOCKED' | 'ADMIN_OVERRIDE';
 
 export const Kiosk: React.FC = () => {
   const { registry, updateSyncStatus, updatePhoneLast4, getCheckedInCount } = useRegistry();
@@ -17,6 +17,9 @@ export const Kiosk: React.FC = () => {
   const [failCount, setFailCount] = useState(0);
   const [hiddenTapCount, setHiddenTapCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [identityConfirmed, setIdentityConfirmed] = useState(false);
+  const { updatePhone } = useRegistry();
 
   const handleScan = (data: string) => {
     try {
@@ -36,8 +39,14 @@ export const Kiosk: React.FC = () => {
             return;
           }
           setScannedCaptain(captain);
-          setStep('VERIFYING');
+          if (captain.phoneLast4 === null) {
+            setStep('COLLECT_PHONE');
+          } else {
+            setStep('VERIFYING');
+          }
           setPin('');
+          setSmsConsent(false);
+          setIdentityConfirmed(false);
         }
       }
     } catch (e) {
@@ -45,17 +54,18 @@ export const Kiosk: React.FC = () => {
     }
   };
 
-  const handleVerify = () => {
-    if (!scannedCaptain) return;
-    if (scannedCaptain.phoneLast4 === null) {
-      if (pin.length === 4) {
-        updatePhoneLast4(scannedCaptain.uuid, pin);
-        updateSyncStatus(scannedCaptain.uuid, 1);
-        setStep('SUCCESS');
-        setTimeout(() => reset(), 3000);
-      }
-      return;
+  const handleSavePhone = () => {
+    if (!scannedCaptain || !smsConsent) return;
+    if (pin.length === 10) {
+      updatePhone(scannedCaptain.uuid, pin);
+      updateSyncStatus(scannedCaptain.uuid, 1);
+      setStep('SUCCESS');
+      setTimeout(() => reset(), 3000);
     }
+  };
+
+  const handleVerify = () => {
+    if (!scannedCaptain || !identityConfirmed) return;
     if (scannedCaptain.phoneLast4 === pin) {
       updateSyncStatus(scannedCaptain.uuid, 1);
       setStep('SUCCESS');
@@ -91,6 +101,8 @@ export const Kiosk: React.FC = () => {
     setFailCount(0);
     setHiddenTapCount(0);
     setSearchQuery('');
+    setSmsConsent(false);
+    setIdentityConfirmed(false);
   };
 
   const handleHiddenTap = () => {
@@ -152,26 +164,46 @@ export const Kiosk: React.FC = () => {
               autoFocus
               className="w-full p-4 text-2xl border-2 border-slate-300 rounded-xl mb-6 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
-            <div className="space-y-3 max-h-80 overflow-y-auto">
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
               {searchQuery.length >= 2
                 ? registry
                     .filter(c =>
-                      c.lastName.toLowerCase().startsWith(searchQuery.trim().toLowerCase()) &&
-                      c.syncStatus === 0
+                      c.lastName.toLowerCase().startsWith(searchQuery.trim().toLowerCase())
                     )
                     .map(c => (
                       <button
                         key={c.uuid}
                         onClick={() => {
+                          if (c.syncStatus === 1 || c.syncStatus === 2) {
+                            alert('Captain is already checked in.');
+                            return;
+                          }
                           setScannedCaptain(c);
                           setSearchQuery('');
-                          setStep('VERIFYING');
+                          if (c.phoneLast4 === null) {
+                            setStep('COLLECT_PHONE');
+                          } else {
+                            setStep('VERIFYING');
+                          }
                           setPin('');
+                          setSmsConsent(false);
+                          setIdentityConfirmed(false);
                         }}
-                        className="w-full text-left p-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-xl transition-colors"
+                        className={`w-full text-left p-4 border rounded-xl transition-colors flex justify-between items-center ${
+                          c.syncStatus > 0 
+                            ? 'bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed' 
+                            : 'bg-slate-50 hover:bg-blue-50 border-slate-200'
+                        }`}
                       >
-                        <span className="text-xl font-bold text-slate-800">{c.lastName}, {c.firstName}</span>
-                        <span className="ml-3 text-slate-500 font-medium">Precinct {c.precinct}</span>
+                        <div>
+                          <span className="text-xl font-bold text-slate-800">{c.lastName}, {c.firstName}</span>
+                          <span className="ml-3 text-slate-500 font-medium">Precinct {c.precinct}</span>
+                        </div>
+                        {c.syncStatus > 0 && (
+                          <span className="text-emerald-600 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                            <CheckCircle className="w-4 h-4" /> Checked In
+                          </span>
+                        )}
                       </button>
                     ))
                 : <p className="text-slate-400 text-center text-lg">Type at least 2 letters to search.</p>
@@ -196,28 +228,74 @@ export const Kiosk: React.FC = () => {
             <h2 className="text-3xl font-bold text-slate-800 mb-3">
               Welcome, Captain {scannedCaptain.firstName} {scannedCaptain.lastName}
             </h2>
-            <div className="bg-slate-100 inline-block px-4 py-1 rounded-full text-slate-700 font-bold mb-8 border border-slate-300">
+            <div className="bg-slate-100 inline-block px-4 py-1 rounded-full text-slate-700 font-bold mb-6 border border-slate-300">
               Precinct {scannedCaptain.precinct}
             </div>
-            {scannedCaptain.phoneLast4 === null ? (
-              <p className="text-slate-600 mb-8 font-medium text-lg leading-relaxed px-4">
-                We don't have a phone number on file for you yet.<br/>
-                Enter the last 4 digits of your phone to complete check-in and save them for future meetings:<br/>
-                <span className="text-slate-800 font-bold tracking-widest mt-4 inline-block text-3xl bg-slate-100 py-2 px-6 rounded-xl border border-slate-300">***-***-____</span>
-              </p>
-            ) : (
-              <p className="text-slate-600 mb-8 font-medium text-lg leading-relaxed px-4">
-                To verify your identity and comply with anti-proxy bylaws, please enter the last 4 digits of your registered phone number:<br/>
-                <span className="text-slate-800 font-bold tracking-widest mt-4 inline-block text-3xl bg-slate-100 py-2 px-6 rounded-xl border border-slate-300">***-***-____</span>
-              </p>
-            )}
+            
+            <div className="mb-6 flex items-start text-left px-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
+              <input
+                type="checkbox"
+                id="identityConfirmed"
+                checked={identityConfirmed}
+                onChange={(e) => setIdentityConfirmed(e.target.checked)}
+                className="mt-1 w-6 h-6 text-blue-600 rounded focus:ring-blue-500 flex-shrink-0"
+              />
+              <label htmlFor="identityConfirmed" className="ml-3 text-slate-800 font-medium cursor-pointer">
+                I confirm that I am {scannedCaptain.firstName} {scannedCaptain.lastName} and my information is still accurate.
+              </label>
+            </div>
+
+            <p className="text-slate-600 mb-6 font-medium text-lg leading-relaxed px-4">
+              To verify your identity and comply with anti-proxy bylaws, please enter the last 4 digits of your registered phone number:<br/>
+              <span className="text-slate-800 font-bold tracking-widest mt-4 inline-block text-3xl bg-slate-100 py-2 px-6 rounded-xl border border-slate-300">***-***-____</span>
+            </p>
             
             <Numpad 
               value={pin}
               onChange={setPin}
               onClear={() => setPin('')}
               onSubmit={handleVerify}
+              submitDisabled={!identityConfirmed}
             />
+            
+            <button onClick={reset} className="mt-8 text-slate-500 font-bold text-xl hover:text-slate-700">Cancel</button>
+          </div>
+        )}
+
+        {step === 'COLLECT_PHONE' && scannedCaptain && (
+          <div className="w-full max-w-xl bg-white rounded-[2rem] shadow-2xl p-10 text-center border border-slate-200 animate-in zoom-in-95 duration-300">
+            <h2 className="text-3xl font-bold text-slate-800 mb-3">
+              Welcome, Captain {scannedCaptain.firstName} {scannedCaptain.lastName}
+            </h2>
+            <div className="bg-slate-100 inline-block px-4 py-1 rounded-full text-slate-700 font-bold mb-8 border border-slate-300">
+              Precinct {scannedCaptain.precinct}
+            </div>
+            <p className="text-slate-600 mb-6 font-medium text-lg leading-relaxed px-4">
+              We don't have a phone number on file for you yet.<br/>
+              Please enter your 10-digit cell phone number to complete check-in:
+            </p>
+
+            <Numpad 
+              value={pin}
+              onChange={setPin}
+              onClear={() => setPin('')}
+              onSubmit={handleSavePhone}
+              maxLength={10}
+              submitDisabled={!smsConsent}
+            />
+
+            <div className="mt-6 flex items-start text-left px-4">
+              <input
+                type="checkbox"
+                id="smsConsent"
+                checked={smsConsent}
+                onChange={(e) => setSmsConsent(e.target.checked)}
+                className="mt-1 w-6 h-6 text-blue-600 rounded focus:ring-blue-500 flex-shrink-0"
+              />
+              <label htmlFor="smsConsent" className="ml-3 text-slate-600 text-sm cursor-pointer">
+                I confirm this is my personal cell phone number and I consent to receive important meeting updates via SMS.
+              </label>
+            </div>
             
             <button onClick={reset} className="mt-8 text-slate-500 font-bold text-xl hover:text-slate-700">Cancel</button>
           </div>

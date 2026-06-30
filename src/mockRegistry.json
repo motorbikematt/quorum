@@ -7,6 +7,7 @@
     "precinctId": "5701",
     "precinctAbbr": "KET-1A",
     "zip": "45429",
+    "phone": "5551238922",
     "phoneLast4": "8922",
     "status": "Active",
     "syncStatus": 0
@@ -19,6 +20,7 @@
     "precinctId": "5702",
     "precinctAbbr": "KET-1B",
     "zip": "45440",
+    "phone": null,
     "phoneLast4": null,
     "status": "Active",
     "syncStatus": 0

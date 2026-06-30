@@ -6,6 +6,7 @@ export type Captain = {
   precinctId: string;     // BoE numeric precinct ID — e.g. "5701"
   precinctAbbr: string;   // short form for QR payload — e.g. "KET-1A"
   zip: string;
+  phone: string | null;   // Full 10-digit phone number
   phoneLast4: string | null; // null = not yet collected; app collects on first check-in
   status: string;
   syncStatus: number; // 0=Pending 1=Verified 2=StaffOverride 3=Locked

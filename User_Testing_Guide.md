@@ -18,13 +18,13 @@ Since Quorum involves both a personal mobile device (for pass generation) and a 
 
 3. **Set Up the Kiosk (Tablet or Laptop):**
    - Open a browser on the device you want to use as the Kiosk.
-   - Navigate to `http://192.168.1.X:5173/kiosk`
+   - Navigate to `http://192.168.1.X:5173/#/kiosk`
    - Grant camera permissions when prompted.
    - Ensure the volume is up so you can hear the success/error chimes.
 
 4. **Set Up the Tester's Device (Mobile Phone):**
    - Have the tester connect to the same Wi-Fi network.
-   - Have them navigate to `http://192.168.1.X:5173/pass` on their smartphone.
+   - Have them navigate to `http://192.168.1.X:5173/#/pass` on their smartphone.
 
 ---
 
