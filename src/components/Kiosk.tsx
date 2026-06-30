@@ -20,7 +20,7 @@ type Step = 'IDLE' | 'SCANNING' | 'MANUAL_SEARCH' | 'VERIFYING' | 'COLLECT_PHONE
  * Handles anti-proxy locking and admin overrides.
  */
 export const Kiosk: React.FC = () => {
-  const { registry, updateSyncStatus, updatePhone, updateEmail, getCheckedInCount } = useRegistry();
+  const { registry, updateSyncStatus, updatePhone, updateCaptain, getCheckedInCount } = useRegistry();
   const [step, setStep] = useState<Step>('IDLE');
   const [scannedCaptain, setScannedCaptain] = useState<Captain | null>(null);
   const [pin, setPin] = useState('');
@@ -78,7 +78,7 @@ export const Kiosk: React.FC = () => {
     if (pin.length === 10) {
       updatePhone(scannedCaptain.uuid, pin);
       const trimmedEmail = email.trim();
-      if (trimmedEmail) updateEmail(scannedCaptain.uuid, trimmedEmail);
+      if (trimmedEmail) updateCaptain(scannedCaptain.uuid, { email: trimmedEmail });
       setScannedCaptain({ ...scannedCaptain, phoneLast4: pin.slice(-4) });
       setPin('');
       setEmail('');

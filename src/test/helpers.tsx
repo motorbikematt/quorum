@@ -11,44 +11,26 @@ export function renderWithRegistry(ui: React.ReactElement, initialRegistry: Capt
     const [registry, setRegistry] = useState(initialRegistry);
     latestRegistry = registry;
     
-    const updateSyncStatus = (uuid: string, status: number) => {
+    // The one place a captain is mutated in tests; mirrors the real provider.
+    const applyPatch = (uuid: string, patch: Partial<Captain>) => {
       setRegistry(prev => {
-        const updated = prev.map(c => c.uuid === uuid ? { ...c, syncStatus: status } : c);
+        const updated = prev.map(c => c.uuid === uuid ? { ...c, ...patch } : c);
         // Simulate the real provider's localStorage write so tests can assert on it
         localStorage.setItem('quorumRegistry', JSON.stringify(updated));
         return updated;
       });
     };
+
+    const updateCaptain = (uuid: string, patch: Partial<Captain>) => applyPatch(uuid, patch);
+    const updateSyncStatus = (uuid: string, status: number) => applyPatch(uuid, { syncStatus: status });
     
-    const updatePhoneLast4 = (uuid: string, last4: string) => {
-      setRegistry(prev => {
-        const updated = prev.map(c => c.uuid === uuid ? { ...c, phoneLast4: last4 } : c);
-        localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-        return updated;
-      });
-    };
     
     const getCheckedInCount = () => countCheckedIn(registry);
     
-    const updatePhone = (uuid: string, phone: string) => {
-      setRegistry(prev => {
-        const phoneLast4 = phone.slice(-4);
-        const updated = prev.map(c => c.uuid === uuid ? { ...c, phone, phoneLast4 } : c);
-        localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-        return updated;
-      });
-    };
-
-    const updateEmail = (uuid: string, email: string) => {
-      setRegistry(prev => {
-        const updated = prev.map(c => c.uuid === uuid ? { ...c, email } : c);
-        localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-        return updated;
-      });
-    };
+    const updatePhone = (uuid: string, phone: string) => applyPatch(uuid, { phone, phoneLast4: phone.slice(-4) });
 
     return (
-      <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, updateEmail, getCheckedInCount }}>
+      <RegistryContext.Provider value={{ registry, updateCaptain, updateSyncStatus, updatePhone, getCheckedInCount }}>
         <MemoryRouter>
           {children}
         </MemoryRouter>
