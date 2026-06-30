@@ -5,10 +5,11 @@ import { type Captain, countCheckedIn, flushToGAS, GAS_ENDPOINT } from '../lib/r
 
 interface RegistryContextType {
   registry: Captain[];
+  // Generic write path: patch any field(s) of one captain (e.g. a captain
+  // supplying their own email). New fields need no new method.
+  updateCaptain: (uuid: string, patch: Partial<Captain>) => void;
   updateSyncStatus: (uuid: string, status: number) => void;
-  updatePhoneLast4: (uuid: string, phoneLast4: string) => void;
   updatePhone: (uuid: string, phone: string) => void;
-  updateEmail: (uuid: string, email: string) => void;
   getCheckedInCount: () => number;
 }
 
@@ -28,42 +29,30 @@ export const RegistryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
 
-  const updateSyncStatus = (uuid: string, status: number) => {
+  // The one place a captain record is mutated: apply a partial patch, persist to
+  // localStorage, then optionally run a side effect on the updated registry.
+  const applyPatch = (
+    uuid: string,
+    patch: Partial<Captain>,
+    after?: (updated: Captain[]) => void,
+  ) => {
     setRegistry(prev => {
-      const updated = prev.map(c => c.uuid === uuid ? { ...c, syncStatus: status } : c);
+      const updated = prev.map(c => c.uuid === uuid ? { ...c, ...patch } : c);
       localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-      flushToGAS(updated);
+      after?.(updated);
       return updated;
     });
   };
 
-  const updatePhoneLast4 = (uuid: string, phoneLast4: string) => {
-    setRegistry(prev => {
-      const updated = prev.map(c => c.uuid === uuid ? { ...c, phoneLast4 } : c);
-      localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-      return updated;
-    });
-  };
+  const updateCaptain = (uuid: string, patch: Partial<Captain>) => applyPatch(uuid, patch);
 
-  const updatePhone = (uuid: string, phone: string) => {
-    setRegistry(prev => {
-      const phoneLast4 = phone.slice(-4);
-      const updated = prev.map(c => c.uuid === uuid ? { ...c, phone, phoneLast4 } : c);
-      localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-      return updated;
-    });
-  };
+  // Check-in status also flushes the change to the GAS sync endpoint.
+  const updateSyncStatus = (uuid: string, status: number) =>
+    applyPatch(uuid, { syncStatus: status }, flushToGAS);
 
-  // Self-service write path: a captain supplies their own email at the kiosk.
-  // The seeder may pre-fill email from the party spreadsheet; this lets a
-  // captain add or correct it when the seed had none.
-  const updateEmail = (uuid: string, email: string) => {
-    setRegistry(prev => {
-      const updated = prev.map(c => c.uuid === uuid ? { ...c, email } : c);
-      localStorage.setItem('quorumRegistry', JSON.stringify(updated));
-      return updated;
-    });
-  };
+  // Phone carries a derived phoneLast4 (the kiosk PIN second factor).
+  const updatePhone = (uuid: string, phone: string) =>
+    applyPatch(uuid, { phone, phoneLast4: phone.slice(-4) });
 
   useEffect(() => {
     if (!GAS_ENDPOINT) return;
@@ -74,7 +63,7 @@ export const RegistryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getCheckedInCount = () => countCheckedIn(registry);
 
   return (
-    <RegistryContext.Provider value={{ registry, updateSyncStatus, updatePhoneLast4, updatePhone, updateEmail, getCheckedInCount }}>
+    <RegistryContext.Provider value={{ registry, updateCaptain, updateSyncStatus, updatePhone, getCheckedInCount }}>
       {children}
     </RegistryContext.Provider>
   );
