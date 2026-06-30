@@ -2,13 +2,20 @@ import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRegistry } from '../context/RegistryContext';
 
+/**
+ * PassGenerator Component
+ * 
+ * Renders a form for users to generate a secure QR code credential (Pass) for 
+ * use at the check-in Kiosk. It also provides a link to the dashboard activation 
+ * page with necessary URL parameters embedded.
+ */
 export const PassGenerator: React.FC = () => {
   const { registry } = useRegistry();
   const [lastName, setLastName] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [passData, setPassData] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [captainInfo, setCaptainInfo] = useState<{name: string, pct: string, v_id: string, needsPhone: boolean} | null>(null);
+  const [captainInfo, setCaptainInfo] = useState<{name: string, pct: string, v_id: string} | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +38,7 @@ export const PassGenerator: React.FC = () => {
       setCaptainInfo({ 
         name: `${captain.firstName} ${captain.lastName}`, 
         pct: captain.precinct,
-        v_id: captain.uuid,
-        needsPhone: captain.phoneLast4 === null
+        v_id: captain.uuid
       });
     } else {
       setError('No record found matching that information.');
@@ -99,15 +105,13 @@ export const PassGenerator: React.FC = () => {
               <button onClick={() => {
                   const url = new URL('https://precincts.info/activate');
                   const currentParams = new URLSearchParams(window.location.search);
-                  const apiOverride = currentParams.get('captainApi');
+                  const hashParams = window.location.hash.includes('?') ? new URLSearchParams(window.location.hash.split('?')[1]) : null;
+                  const apiOverride = currentParams.get('captainApi') || (hashParams ? hashParams.get('captainApi') : null);
                   if (apiOverride) {
                     url.searchParams.set('captainApi', apiOverride);
                   }
                   if (captainInfo) {
                     url.searchParams.set('v_id', captainInfo.v_id);
-                    if (captainInfo.needsPhone) {
-                      url.searchParams.set('needs_phone', 'true');
-                    }
                   }
                   window.open(url.toString(), '_blank');
                 }} 

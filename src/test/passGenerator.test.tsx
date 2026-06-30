@@ -189,21 +189,6 @@ describe('PassGenerator — precincts.info CTA', () => {
     expect(openedUrl.origin).toBe('https://precincts.info');
     expect(openedUrl.pathname).toBe('/activate');
     expect(openedUrl.searchParams.get('v_id')).toBe('uuid-1');
-    expect(openedUrl.searchParams.get('needs_phone')).toBeNull();
-  });
-
-  it('opens activation URL with needs_phone=true when captain has no phone number', async () => {
-    renderWithRegistry(<PassGenerator />, mockRegistry);
-    await userEvent.type(screen.getByPlaceholderText('e.g. Doe'), 'Smith');
-    await userEvent.type(screen.getByPlaceholderText('e.g. 45429'), '45440');
-    await userEvent.click(screen.getByText('Retrieve Pass'));
-    
-    await userEvent.click(screen.getByRole('button', { name: /click here to set a password/i }));
-    
-    expect(openSpy).toHaveBeenCalled();
-    const openedUrl = new URL(openSpy.mock.calls[0][0]);
-    expect(openedUrl.searchParams.get('v_id')).toBe('uuid-2');
-    expect(openedUrl.searchParams.get('needs_phone')).toBe('true');
   });
 
   it('propagates captainApi parameter to the activation URL if present', async () => {

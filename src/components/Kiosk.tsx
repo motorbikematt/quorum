@@ -9,6 +9,15 @@ const ADMIN_PIN = '9999';
 
 type Step = 'IDLE' | 'SCANNING' | 'MANUAL_SEARCH' | 'VERIFYING' | 'COLLECT_PHONE' | 'SUCCESS' | 'LOCKED' | 'ADMIN_OVERRIDE';
 
+/**
+ * Kiosk Component
+ * 
+ * Main interface for the physical check-in iPads at the meeting. 
+ * Allows precinct captains to scan their QR passes (or be looked up manually), 
+ * provides a flow to capture missing phone numbers, and verifies their identity 
+ * via a 4-digit PIN (last 4 of their cell number). 
+ * Handles anti-proxy locking and admin overrides.
+ */
 export const Kiosk: React.FC = () => {
   const { registry, updateSyncStatus, updatePhoneLast4, getCheckedInCount } = useRegistry();
   const [step, setStep] = useState<Step>('IDLE');
@@ -21,6 +30,10 @@ export const Kiosk: React.FC = () => {
   const [identityConfirmed, setIdentityConfirmed] = useState(false);
   const { updatePhone } = useRegistry();
 
+  /**
+   * Parses the scanned QR code payload, checks expiration, and transitions 
+   * the user to either phone collection (if missing) or 4-digit PIN verification.
+   */
   const handleScan = (data: string) => {
     try {
       const payload = JSON.parse(data);
@@ -54,16 +67,26 @@ export const Kiosk: React.FC = () => {
     }
   };
 
+  /**
+   * Saves a newly collected 10-digit phone number for captains who didn't have one on file.
+   * Instead of checking them in, this routes them to the standard VERIFYING step so they 
+   * complete the same 4-digit PIN check as everyone else.
+   */
   const handleSavePhone = () => {
     if (!scannedCaptain || !smsConsent) return;
     if (pin.length === 10) {
       updatePhone(scannedCaptain.uuid, pin);
-      updateSyncStatus(scannedCaptain.uuid, 1);
-      setStep('SUCCESS');
-      setTimeout(() => reset(), 3000);
+      setScannedCaptain({ ...scannedCaptain, phoneLast4: pin.slice(-4) });
+      setPin('');
+      setIdentityConfirmed(false);
+      setStep('VERIFYING');
     }
   };
 
+  /**
+   * Verifies the entered 4-digit PIN against the captain's stored phoneLast4.
+   * If correct, marks them checked-in (syncStatus=1). If incorrect twice, locks the screen.
+   */
   const handleVerify = () => {
     if (!scannedCaptain || !identityConfirmed) return;
     if (scannedCaptain.phoneLast4 === pin) {
@@ -83,6 +106,10 @@ export const Kiosk: React.FC = () => {
     }
   };
 
+  /**
+   * Processes the staff override PIN. If correct, checks the captain in with 
+   * a special staff-override status (syncStatus=2) to differentiate from normal check-ins.
+   */
   const handleAdminVerify = () => {
     if (pin === ADMIN_PIN && scannedCaptain) {
       updateSyncStatus(scannedCaptain.uuid, 2);
@@ -94,6 +121,9 @@ export const Kiosk: React.FC = () => {
     }
   };
 
+  /**
+   * Resets the kiosk to the IDLE state, clearing all inputs and scanned data.
+   */
   const reset = () => {
     setStep('IDLE');
     setScannedCaptain(null);

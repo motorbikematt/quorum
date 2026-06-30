@@ -215,7 +215,7 @@ describe('Kiosk — null phone collection path', () => {
     expect(screen.getByText(/We don't have a phone number on file/i)).toBeInTheDocument();
   });
 
-  it('accepts a 10-digit PIN and SMS consent as the new phone and transitions to SUCCESS', async () => {
+  it('accepts a 10-digit PIN and SMS consent as the new phone and transitions to VERIFYING then SUCCESS', async () => {
     vi.useFakeTimers();
     renderWithRegistry(<Kiosk />, initialRegistry);
     fireEvent.click(screen.getByRole('button', { name: /tap to scan qr pass/i }));
@@ -226,12 +226,17 @@ describe('Kiosk — null phone collection path', () => {
     }
     
     fireEvent.click(screen.getByLabelText(/I confirm this is my personal cell phone number/i));
-    {
-      const cbF = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbF && !(cbF).checked) {
-        fireEvent.click(cbF);
-      }
+    fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
+    
+    // Now it should be in VERIFYING state
+    expect(screen.getByText(/I confirm that I am/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText(/I confirm that I am/i));
+    
+    // Enter the last 4 digits of the phone we just set (5555)
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByRole('button', { name: '5' }));
     }
+    
     fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
     expect(screen.getByText(/Verification Complete/i)).toBeInTheDocument();
@@ -253,11 +258,12 @@ describe('Kiosk — null phone collection path', () => {
     }
     
     fireEvent.click(screen.getByLabelText(/I confirm this is my personal cell phone number/i));
-    {
-      const cbF = screen.queryByLabelText(/I confirm that I am/i);
-      if (cbF && !(cbF).checked) {
-        fireEvent.click(cbF);
-      }
+    fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
+    
+    // Now verify the 4 digits
+    fireEvent.click(screen.getByLabelText(/I confirm that I am/i));
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByRole('button', { name: '5' }));
     }
     fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
     
