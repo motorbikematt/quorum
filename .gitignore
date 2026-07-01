@@ -24,3 +24,4 @@ local/
 *.sln
 *.sw?
 *.csv
+.claude/settings.json
